@@ -6,13 +6,21 @@ LD=$(CROSS_COMPILE)gcc
 OBJCOPY=$(CROSS_COMPILE)objcopy
 OBJDUMP=$(CROSS_COMPILE)objdump
 
-CFLAGS?= -g -march=armv7 -mthumb -mfix-cortex-m3-ldrd -nostartfiles
-STM32_CFLAGS?= -I$(STM32LIB)/inc -L$(STM32LIB)/lib 
-
 TARGET_BIN?=main.bin
 TARGET_ELF?=$(TARGET_BIN:.bin=.elf)
 TARGET_DEVICE?=md
+
+TARGET_DEVICE_CRT:=$(shell echo $(TARGET_DEVICE) | tr [:upper:] [:lower:])
+TARGET_DEVICE_CRT:=startup_stm32f10x_$(TARGET_DEVICE_CRT).o
+
+TARGET_DEVICE_DEF:=$(shell echo $(TARGET_DEVICE) | tr [:lower:] [:upper:])
+TARGET_DEVICE_DEF:=STM32F10X_$(TARET_DEVICE_DEF)
+
 STARTUP_FILE?=$(STM32LIB)/lib/startup_stm32f10x_$(TARGET_DEVICE).o
+
+CFLAGS?= -g -march=armv7 -mthumb -mfix-cortex-m3-ldrd -nostartfiles
+STM32_CFLAGS?= -I$(STM32LIB)/inc -L$(STM32LIB)/lib 
+STM32_LDFLAGS?=-lstm32
 
 all:$(TARGET_BIN)
 	
@@ -20,8 +28,8 @@ $(TARGET_BIN):$(TARGET_ELF)
 	$(OBJCOPY) -Obinary $< $@
 
 $(TARGET_ELF): $(OBJS) $(LDSCRIPT)
-	$(LD) $(CFLAGS) $(STM32_CFLAGS) -Wl,-T$(LDSCRIPT) -o $@ \
-        $(STARTUP_FILE) $(filter-out $(LDSCRIPT), $^)
+	$(LD) $(CFLAGS) $(STM32_CFLAGS) -T$(LDSCRIPT) -o $@ \
+        $(STARTUP_FILE) $(filter-out $(LDSCRIPT), $^) $(STM32_LDFLAGS)
 
 include $(OBJS:.o=.d)
 

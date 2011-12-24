@@ -1,13 +1,15 @@
+OUTDIR=./_stage
 
 CROSS_COMPILE=arm-none-eabi-
 CC=$(CROSS_COMPILE)gcc
 AR=$(CROSS_COMPILE)ar
 AS=$(CROSS_COMPILE)as
 
-CFLAGS=-c -mcpu=cortex-m3 -mthumb -DSTM32F10X_MD
+CFLAGS=-c -mcpu=cortex-m3 -mthumb -nostartfiles -DSTM32F10X_MD \
+	   -DUSE_STDPERIPH_DRIVER -I$(OUTDIR)/inc
+
 ASFLAGS=-mcpu=cortex-m3 -mthumb
 
-OUTDIR=./_stage
 
 DIRS=Libraries/CMSIS/CM3/CoreSupport \
 	 Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x \
@@ -25,7 +27,7 @@ INCS=$(foreach DIR, $(DIRS), $(wildcard $(DIR)/*.h))
 DSTINCS=$(foreach INC, $(INCS), $(OUTDIR)/inc/$(notdir $(INC)))
 DSTOBJS=$(SRCS:.c=.o)
 
-DSTLIB=$(OUTDIR)/lib/stm32lib.a
+DSTLIB=$(OUTDIR)/lib/libstm32.a
 
 STARTUP_DEP=$(foreach SRC, $(STARTUP_SRC), \
 			"\n$(OUTDIR)/lib/$(notdir $(SRC:.s=.o)):$(SRC)\n\t\$$(AS) \$$(ASFLAGS) -o \$$@ \$$<")
@@ -34,19 +36,20 @@ INCDEP=$(foreach INC, $(INCS), \
 
 all:$(OUTDIR)/lib \
 	$(OUTDIR)/inc \
+	$(OUTDIR)/Makefile.inc \
+	$(OUTDIR)/Makefile.template \
+	$(OUTDIR)/template.ld \
+	$(OUTDIR)/inc/stm32f10x_conf.h \
 	deps.d \
 	$(DSTINCS) \
 	$(DSTLIB) \
 	$(STARTUP_OBJ) \
-	$(OUTDIR)/Makefile.inc \
-	$(OUTDIR)/Makefile.template \
-	$(OUTDIR)/template.ld
 
 $(OUTDIR)/lib $(OUTDIR)/inc:
 	mkdir -p $@
 
 $(DSTLIB):$(DSTOBJS)
-	$(AR) crs $@ $^
+	$(AR) cr $@ $^
 
 $(OUTDIR)/Makefile.inc:Makefile.inc
 	cp -f $< $@
@@ -55,6 +58,9 @@ $(OUTDIR)/Makefile.template:Makefile.template
 	cp -f $< $@
 
 $(OUTDIR)/template.ld:template.ld
+	cp -f $< $@
+
+$(OUTDIR)/inc/stm32f10x_conf.h:Project/STM32F10x_StdPeriph_Template/stm32f10x_conf.h
 	cp -f $< $@
 
 include deps.d
@@ -68,7 +74,7 @@ deps.d:$(SRCS) $(INCS)
 OBJS=$(SRCS:.c=.o)
 
 %.o:%.c
-	$(CC) $(CFLAGS) $(INCDIRS) -o $@ $<
+	$(CC) $(CFLAGS) -o $@ $<
 
 clean:
 	rm -rf _stage
