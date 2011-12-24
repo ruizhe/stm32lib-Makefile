@@ -4,8 +4,8 @@ CC=$(CROSS_COMPILE)gcc
 AR=$(CROSS_COMPILE)ar
 AS=$(CROSS_COMPILE)as
 
-CFLAGS=-c -g -mcpu=cortex-m3 -mthumb -DSTM32F10X_MD
-ASFLAGS=-c -g -mcpu=cortex-m3 -mthumb
+CFLAGS=-c -mcpu=cortex-m3 -mthumb -DSTM32F10X_MD
+ASFLAGS=-mcpu=cortex-m3 -mthumb
 
 OUTDIR=./_stage
 
