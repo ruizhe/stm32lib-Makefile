@@ -1,0 +1,11 @@
+CROSS_COMPILE:=arm-none-eabi-
+
+OBJS := main.o
+
+STM32LIB=./stm32lib
+
+LDSCRIPT=stm32.ld
+
+TARGET_DEVICE=md
+
+include $(STM32LIB)/Makefile.inc

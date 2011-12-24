@@ -38,7 +38,9 @@ all:$(OUTDIR)/lib \
 	$(DSTINCS) \
 	$(DSTLIB) \
 	$(STARTUP_OBJ) \
-	$(OUTDIR)/Makefile.inc
+	$(OUTDIR)/Makefile.inc \
+	$(OUTDIR)/Makefile.template \
+	$(OUTDIR)/template.ld
 
 $(OUTDIR)/lib $(OUTDIR)/inc:
 	mkdir -p $@
@@ -47,6 +49,12 @@ $(DSTLIB):$(DSTOBJS)
 	$(AR) crs $@ $^
 
 $(OUTDIR)/Makefile.inc:Makefile.inc
+	cp -f $< $@
+
+$(OUTDIR)/Makefile.template:Makefile.template
+	cp -f $< $@
+
+$(OUTDIR)/template.ld:template.ld
 	cp -f $< $@
 
 include deps.d
