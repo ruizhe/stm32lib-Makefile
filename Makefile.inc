@@ -14,12 +14,12 @@ TARGET_DEVICE_CRT:=$(shell echo $(TARGET_DEVICE) | tr [:upper:] [:lower:])
 TARGET_DEVICE_CRT:=startup_stm32f10x_$(TARGET_DEVICE_CRT).o
 
 TARGET_DEVICE_DEF:=$(shell echo $(TARGET_DEVICE) | tr [:lower:] [:upper:])
-TARGET_DEVICE_DEF:=STM32F10X_$(TARET_DEVICE_DEF)
+TARGET_DEVICE_DEF:=STM32F10X_$(TARGET_DEVICE_DEF)
 
 STARTUP_FILE?=$(STM32LIB)/lib/startup_stm32f10x_$(TARGET_DEVICE).o
 
 CFLAGS?= -g -march=armv7 -mthumb -mfix-cortex-m3-ldrd -nostartfiles
-STM32_CFLAGS?= -I$(STM32LIB)/inc -L$(STM32LIB)/lib 
+STM32_CFLAGS?= -I$(STM32LIB)/inc -L$(STM32LIB)/lib -D$(TARGET_DEVICE_DEF)
 STM32_LDFLAGS?=-lstm32
 
 all:$(TARGET_BIN)
